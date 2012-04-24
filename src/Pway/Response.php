@@ -89,7 +89,7 @@ class Response
         }
     }
 
-    public function domErrorHandler($errno, $errstr, $errfile, $errline)
+    public static function domErrorHandler($errno, $errstr, $errfile, $errline)
     {
         if ($errno == E_WARNING && (substr_count($errstr,"loadXML()") > 0)) {
             throw new \DomException($errstr);
