@@ -75,6 +75,11 @@ class Response
         return $response;
     }
 
+    public function isSuccessful()
+    {
+        return $this->getStatus() == self::STATUS_OKAY;
+    }
+
     public function getStatusMessage()
     {
         if ($this->error) {
