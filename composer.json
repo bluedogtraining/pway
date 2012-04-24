@@ -1,5 +1,5 @@
 {
-    "name": "jwpage/pway",
+    "name": "bluedogtraining/pway",
     "description": "Simple API for Eway Payment Gateway",
     "keywords": ["eway", "payments", "australia", "curl", "api"],
     "homepage": "https://github.com/jwpage/pway",
