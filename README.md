@@ -10,6 +10,7 @@ Installation is done using <http://getcomposer.org/> and
 ## Usage
 
 ```php
+<?php
 $request = new \Pway\Request(87654321);
 $request->ewayTotalAmount     = 1000; // Ten dollars
 $request->ewayCardHoldersName = 'Test Account';
