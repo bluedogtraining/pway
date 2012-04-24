@@ -4,41 +4,45 @@ namespace Pway;
 
 class Response
 {
-    const EWAY_CURL_ERROR_OFFSET = 1000;
-    const EWAY_XML_ERROR_OFFSET = 2000;
+    const ERROR_CURL = 1000;
+    const ERROR_XML  = 2000;
 
-    const EWAY_TRANSACTION_OK = 0;
-    const EWAY_TRANSACTION_FAILED = 1;
-    const EWAY_TRANSACTION_UNKNOWN = 2;
+    const STATUS_OKAY    = 0;
+    const STATUS_FAILED  = 1;
+    const STATUS_UNKNOWN = 2;
 
     protected $responseData = array();
-    protected $error = null;
+    protected $error        = null;
     protected $errorMessage = null;
 
-    public function __construct($ch, $response)
+    public function __construct($curl_errno, $response)
     {
-        if (curl_errno($ch) == CURLE_OK) {
-            $this->parseResponse($response->getBody());
+        if ($curl_errno == CURLE_OK) {
+            $this->parseResponse($response);
         } else {
-            $this->error = curl_errno($ch) + self::EWAY_CURL_ERROR_OFFSET;
+            $this->error = $curl_errno + self::ERROR_CURL;
+            $this->errorMessage = $curl_errno;
         }
+    }
+
+    public function __get($var)
+    {
+        if (isset($this->responseData[$var])) {
+            return $this->responseData[$var];
+        }
+        return null;
     }
 
     protected function parseResponse($xml)
     {
-        $dom = new DomDocument();
+        $dom = new \DomDocument();
         try {
             // Munge errors into exceptions
             set_error_handler('\Pway\Response::domErrorHandler');
-            $loaded = $dom->loadXml($xml);
+            $dom->loadXml($xml);
             restore_error_handler();
-
-            if (!$loaded) {
-                throw new DomException('Error parsing XML');
-            }
-        } catch (DomException $e) {
-            $loaded = false;
-            $this->error = self::EWAY_XML_ERROR_OFFSET;
+        } catch (\DomException $e) {
+            $this->error = self::ERROR_XML;
             $this->errorMessage = $e->getMessage();
         }
 
@@ -46,7 +50,7 @@ class Response
             return false;
         }
 
-        foreach ($dom->childNodes as $node) {
+        foreach ($dom->firstChild->childNodes as $node) {
             $this->responseData[$node->nodeName] = $node->nodeValue;
         }
     }
@@ -57,30 +61,33 @@ class Response
             return $this->error;
         }
 
-        switch ($this->responseData['ewayTrxnStatus']) {
-            case 'True':
-                $response = self::EWAY_TRANSACTION_OK;
-                break;
-            case 'False':
-                $response = self::EWAY_TRANSACTION_FAILED;
-                break;
-            default:
-                $response = self::EWAY_TRANSACTION_UNKNOWN;
-                break;
+        $response = self::STATUS_UNKNOWN;
+        if (isset($this->responseData['ewayTrxnStatus'])) {
+            switch ($this->responseData['ewayTrxnStatus']) {
+                case 'True':
+                    $response = self::STATUS_OKAY;
+                    break;
+                case 'False':
+                    $response = self::STATUS_FAILED;
+                    break;
+            }
         }
         return $response;
     }
 
-    public function getErrorMessage()
+    public function getStatusMessage()
     {
         if ($this->error) {
             return $this->errorMessage;
-        } else {
+        } elseif (isset($this->responseData['ewayTrxnError'])) {
             return $this->responseData['ewayTrxnError'];
         }
     }
 
-    protected function domErrorHandler($errno, $errstr, $errfile, $errline)
+    public function domErrorHandler($errno, $errstr, $errfile, $errline)
     {
-    } 
+        if ($errno == E_WARNING && (substr_count($errstr,"loadXML()") > 0)) {
+            throw new \DomException($errstr);
+        }
+    }
 }

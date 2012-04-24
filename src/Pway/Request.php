@@ -6,7 +6,6 @@ use \Pway\Response;
 
 class Request
 {
-    protected static $gatewayUrl = '';
     protected static $requestFields = array(
         'ewayCustomerID'                 => 8,
         'ewayTotalAmount'                => 12,
@@ -27,10 +26,14 @@ class Request
         'ewayOption3'                    => 255,
         'ewayCVN'                        => 4,
     );
+
+    protected $gatewayUrl = '';
     protected $requestData = array();
 
-    public function __construct($customerId)
+    public function __construct($customerId, $gateway = 'https://www.eway.com.au/gateway_cvn/xmlpayment.asp')
     {
+        $this->ewayCustomerID = $customerId;
+        $this->gatewayUrl     = $gateway;
     }
 
     public function send()
@@ -40,16 +43,26 @@ class Request
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 240);
 
         $response = curl_exec($ch);
-        return new Response($ch, $response);
+        return new Response(curl_errno($ch), $response);
     }
 
     public function __set($var, $val)
     {
-        if (isset($this->requestFields[$var])) {
-            $this->requestData[$var] = substr($val, 0, $this->requestFields[$var]);
+        if (isset(self::$requestFields[$var])) {
+            $this->requestData[$var] = substr($val, 0, self::$requestFields[$var]);
+        } else {
+            throw new \Pway\Exception("Unrecognised field name {$var}");
+        }
+    }
+
+    public function __get($var)
+    {
+        if (isset(self::$requestFields[$var])) {
+            return isset($this->requestData[$var]) ? $this->requestData[$var] : null;
         } else {
             throw new \Pway\Exception("Unrecognised field name {$var}");
         }
@@ -64,12 +77,16 @@ class Request
 
     protected function getRequestXml()
     {
-        $xml = new DomDocument();
-        foreach ($this->requestFields as $field) {
-            $xml->appendChild(
-                $xml->createElement($field, $this->requestData[$field])
+        $xml = new \DomDocument();
+        $ewayGateway = $xml->createElement('ewaygateway');
+        foreach (self::$requestFields as $field => $length) {
+            $value = isset($this->requestData[$field]) ? $this->requestData[$field] : null;
+            $ewayGateway->appendChild(
+                $xml->createElement($field, $value)
             );
+
         }
+        $xml->appendChild($ewayGateway);
         return $xml->saveXml();
     }
 }

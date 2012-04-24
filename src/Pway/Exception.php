@@ -1,6 +1,6 @@
 <?php
 
-namespace \Pway;
+namespace Pway;
 
 class Exception extends \Exception
 {
