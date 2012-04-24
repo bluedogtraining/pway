@@ -9,7 +9,7 @@ require_once __DIR__.'/../../../src/Pway/Request.php';
 require_once __DIR__.'/../../../src/Pway/Response.php';
 require_once __DIR__.'/../../../src/Pway/Exception.php';
 
-class RequestResponseTest extends \PHPUnit_Framework_Testcase
+class PwayTest extends \PHPUnit_Framework_Testcase
 {
     public function testConstruct()
     {
