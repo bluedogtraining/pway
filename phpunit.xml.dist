@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit colors="true">
+    <testsuites>
+        <testsuite name="PwayTest Suite">
+            <directory suffix="Test.php">./tests/Pway/Test/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src/Pway/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
