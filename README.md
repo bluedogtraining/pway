@@ -32,3 +32,39 @@ if ($response->isSuccessful()) {
     echo "Error: ".$response->getError();
 }
 ```
+
+## Magic
+
+### Request
+
+`__set()` and `__get` allow you to set request data upon the request
+object, as long as the requests match one of the allowed request fields
+in the [Eway
+documentation](http://www.eway.com.au/Developer/eway-api/direct-payment-solution.aspx).
+
+Example:
+
+    $request->ewayCardHoldersName = 'Foo Bar';
+
+### Response
+
+`__get()` allows you to retreive response data returned from the Eway
+API. The fields that you can fetch match the fields returned in the
+response XML. If a field is not present, it will simply return `null`.
+
+Example:
+
+    echo $response->ewayTrxnError;
+
+## Status Codes
+
+`getStatus()` will return either:
+
+* a [http://curl.haxx.se/libcurl/c/libcurl-errors.html](cURL error code)
+offset by 1000 (ie. `CURLE_UNSUPPORTED_PROTOCOL` would return 1001).
+* an XML error (`const ERROR_XML = 2000`)
+* the error code returned from the [Eway
+  API](http://www.eway.com.au/Developer/payment-code/transaction-results-response-codes.aspx).
+* or (`const STATUS_OKAY = 1`)
+
+You can check for a successful response with `isSuccessful()`.
