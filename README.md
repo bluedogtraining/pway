@@ -29,7 +29,7 @@ $response = $request->send();
 if ($response->isSuccessful()) {
     echo "Thanks for your payment.";
 } else {
-    echo "Error: ".$response->getError();
+    echo "Error: ".$response->getStatus();
 }
 ```
 
