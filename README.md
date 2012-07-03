@@ -1,7 +1,6 @@
 # pway
 
- Simple API for Eway Payment Gateway [![Build
-Status](https://secure.travis-ci.org/bluedogfrontiers/pway.png)](http://travis-ci.org/bluedogfrontiers/pway)
+Simple API for Eway Payment Gateway [![Build Status](https://secure.travis-ci.org/bluedogtraining/pway.png?branch=master)](http://travis-ci.org/bluedogtraining/pway)
 
 See <http://www.eway.com.au/Developer/eway-api/> for more detail on the
 Eway Payment Gateway.
