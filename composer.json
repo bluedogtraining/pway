@@ -2,7 +2,7 @@
     "name": "bluedogtraining/pway",
     "description": "Simple API for Eway Payment Gateway",
     "keywords": ["eway", "payments", "australia", "curl", "api"],
-    "homepage": "https://github.com/jwpage/pway",
+    "homepage": "https://github.com/bluedogtraining/pway",
     "type": "library",
     "license": "MIT",
     "authors": [
