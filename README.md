@@ -1,5 +1,11 @@
 # pway
 
+------
+This library has been deprecated in favour of `bluedogtraining/guzzle-eway`, which 
+leverages the Guzzle HTTP library.
+------
+
+
 Simple API for Eway Payment Gateway [![Build Status](https://secure.travis-ci.org/bluedogtraining/pway.png?branch=master)](http://travis-ci.org/bluedogtraining/pway)
 
 See <http://www.eway.com.au/Developer/eway-api/> for more detail on the
