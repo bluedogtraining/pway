@@ -64,19 +64,19 @@ class Response
     protected function parseResponse($xml)
     {
         $dom = new \DomDocument();
-        try {
-            // Munge errors into exceptions
-            set_error_handler('\Pway\Response::domErrorHandler');
-            $dom->loadXml($xml);
-            restore_error_handler();
-        } catch (\DomException $e) {
-            $this->error = self::ERROR_XML;
-            $this->errorMessage = $e->getMessage();
-        }
 
-        if ($this->error) {
+        $previous = libxml_use_internal_errors(true);
+        $dom->loadXml($xml);
+
+        if (count(libxml_get_errors())) {
+            libxml_use_internal_errors($previous);
+            libxml_clear_errors();
+
+            $this->error = self::ERROR_XML;
+            $this->errorMessage = 'libxml errors: '.json_encode(libxml_get_errors());
             return false;
         }
+        libxml_use_internal_errors($previous);
 
         foreach ($dom->firstChild->childNodes as $node) {
             $this->responseData[$node->nodeName] = $node->nodeValue;
@@ -131,23 +131,6 @@ class Response
             return $this->errorMessage;
         } elseif (isset($this->responseData['ewayTrxnError'])) {
             return $this->responseData['ewayTrxnError'];
-        }
-    }
-
-    /**
-     * static DomErrorHandler method to catch warnings caused from
-     * `DomDocument->loadXML()` and convert them to exceptions to be handled.
-     *
-     * @param int $errno
-     * @param string $errstr
-     * @param string $errfile
-     * @param int $errline
-     * @throws \DomException
-     */
-    public static function domErrorHandler($errno, $errstr, $errfile, $errline)
-    {
-        if ($errno == E_WARNING && (substr_count($errstr,"loadXML()") > 0)) {
-            throw new \DomException($errstr);
         }
     }
 }
